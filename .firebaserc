@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "renovation-tracker-32415"
+  },
+  "targets": {
+    "renovation-tracker-32415": {
+      "hosting": {
+        "reno-tracker": [
+          "reno-tracker"
+        ]
+      }
+    }
+  }
+}
+
