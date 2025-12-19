@@ -59,6 +59,11 @@ export const iconLibrary: Record<
     icon: '🛁',
     gradient: 'from-cyan-400 via-sky-400 to-blue-500',
   },
+  exterior: {
+    label: 'Exterior',
+    icon: '🏡',
+    gradient: 'from-emerald-400 via-lime-400 to-green-500',
+  },
   office: {
     label: 'Office',
     icon: '💻',
