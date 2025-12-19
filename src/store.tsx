@@ -102,6 +102,7 @@ type Action =
       updates: Partial<Pick<Item, 'title' | 'amount' | 'status' | 'note'>>
     }
   | { type: 'hydrate'; state: PersistedState }
+  | { type: 'reset'; state: State }
 
 function uuid() {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -127,16 +128,14 @@ function sampleState(): State {
 }
 
 function sanitizeState(state: State): PersistedState {
-  const { hydrated, activeProjectId, ...rest } = state
-  const cleaned: PersistedState = {
-    ...rest,
-    ...(activeProjectId ? { activeProjectId } : {}),
-  }
-  return cleaned
+  const { hydrated, ...rest } = state
+  return rest
 }
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
+    case 'reset':
+      return action.state
     case 'hydrate':
       return { ...action.state, hydrated: true }
     case 'set-active-project':
@@ -273,6 +272,13 @@ export function RenovationProvider({ children }: { children: React.ReactNode }) 
   const [state, dispatch] = useReducer(reducer, sampleState())
   const { user } = useAuth()
 
+  // Reset local state when user changes to avoid leaking previous user's data
+  useEffect(() => {
+    if (user) {
+      dispatch({ type: 'reset', state: sampleState() })
+    }
+  }, [user?.uid])
+
   // Hydrate from Firestore when signed in
   useEffect(() => {
     if (!user) return
@@ -283,7 +289,7 @@ export function RenovationProvider({ children }: { children: React.ReactNode }) 
         dispatch({ type: 'hydrate', state: data })
       } else {
         const seed = sanitizeState(sampleState())
-        void setDoc(ref, seed, { merge: true })
+        void setDoc(ref, seed)
         dispatch({ type: 'hydrate', state: seed })
       }
     })
