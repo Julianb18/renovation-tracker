@@ -233,9 +233,9 @@ function Landing({
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-300/80">
           Renovation Budget Tracker
         </p>
-        <h1 className="mt-3 text-4xl font-bold text-white">Track every renovation dollar</h1>
+        <h1 className="mt-3 text-4xl font-bold text-white">Track every cent spent</h1>
         <p className="mt-3 max-w-xl text-slate-300">
-          Sign in to sync your budget, categories, and expenses securely in Firestore and access them across devices.
+          Sign in to sync your budget, categories, and expenses securely and access them across devices.
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <button
