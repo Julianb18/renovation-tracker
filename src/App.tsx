@@ -38,7 +38,7 @@ function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.18),transparent_25%),radial-gradient(circle_at_80%_0,rgba(14,165,233,0.14),transparent_25%),radial-gradient(circle_at_50%_80%,rgba(14,165,233,0.12),transparent_30%)]" />
-      <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className="max-w-6xl mx-auto px-4 pt-10">
         <Routes>
           <Route path="/" element={<ProjectPage />} />
           <Route path="/category/:categoryId" element={<CategoryPage />} />

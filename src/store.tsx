@@ -100,6 +100,7 @@ function stripUndefinedDeep<T>(value: T): T {
 type Action =
   | { type: 'set-active-project'; projectId: string }
   | { type: 'add-project'; name: string; totalBudget: number }
+  | { type: 'update-project-name'; projectId: string; name: string }
   | { type: 'update-budget'; projectId: string; totalBudget: number }
   | { type: 'add-category'; projectId: string; name: string; iconKey: IconKey }
   | { type: 'delete-category'; projectId: string; categoryId: string }
@@ -234,6 +235,12 @@ function reducer(state: State, action: Action): State {
         ),
       }
     }
+    case 'update-project-name': {
+      return {
+        ...state,
+        projects: state.projects.map((p) => (p.id === action.projectId ? { ...p, name: action.name } : p)),
+      }
+    }
     case 'add-category': {
       const icon = iconLibrary[action.iconKey]
       return {
@@ -327,6 +334,7 @@ type Ctx = {
   activeProject: Project | undefined
   setActiveProject: (id: string) => void
   addProject: (name: string, totalBudget: number) => void
+  updateProjectName: (projectId: string, name: string) => void
   updateBudget: (projectId: string, totalBudget: number) => void
   addCategory: (projectId: string, name: string, iconKey: IconKey) => void
   deleteCategory: (projectId: string, categoryId: string) => void
@@ -393,6 +401,7 @@ export function RenovationProvider({ children }: { children: React.ReactNode }) 
     activeProject,
     setActiveProject: (id) => dispatch({ type: 'set-active-project', projectId: id }),
     addProject: (name, totalBudget) => dispatch({ type: 'add-project', name, totalBudget }),
+    updateProjectName: (projectId, name) => dispatch({ type: 'update-project-name', projectId, name }),
     updateBudget: (projectId, totalBudget) => dispatch({ type: 'update-budget', projectId, totalBudget }),
     addCategory: (projectId, name, iconKey) => dispatch({ type: 'add-category', projectId, name, iconKey }),
     deleteCategory: (projectId, categoryId) => dispatch({ type: 'delete-category', projectId, categoryId }),
