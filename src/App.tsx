@@ -100,7 +100,7 @@ function ProjectPage() {
             </div>
           </div>
 
-          <div className="max-h-[50vh] overflow-y-auto pr-2">
+          <div className="pretty-scroll max-h-[50vh] overflow-y-auto pr-2">
             <CategoryProgressList
               project={project}
               categories={project.categories}
@@ -120,7 +120,7 @@ function ProjectPage() {
             </span>
           </div>
 
-          <div className="mt-5 max-h-[55vh] space-y-4 overflow-y-auto pr-2">
+          <div className="pretty-scroll mt-5 max-h-[55vh] space-y-4 overflow-y-auto pr-2">
             <UpcomingList title="Upcoming" items={upcoming} emptyText="No scheduled items" />
             <UpcomingList title="Paid" items={paid} emptyText="No paid items yet" />
           </div>
@@ -170,7 +170,7 @@ function CategoryPage() {
         </div>
 
         <div className="mt-5 grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
-          <div className="max-h-[50vh] space-y-3 overflow-y-auto pr-2">
+          <div className="pretty-scroll max-h-[50vh] space-y-3 overflow-y-auto pr-2">
             {category.items.length === 0 ? (
               <p className="text-sm text-slate-400">No items yet. Add your first purchase or task.</p>
             ) : (
