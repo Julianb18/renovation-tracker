@@ -100,11 +100,13 @@ function ProjectPage() {
             </div>
           </div>
 
-          <CategoryProgressList
-            project={project}
-            categories={project.categories}
-            onDelete={(categoryId) => deleteCategory(project.id, categoryId)}
-          />
+          <div className="max-h-[50vh] overflow-y-auto pr-2">
+            <CategoryProgressList
+              project={project}
+              categories={project.categories}
+              onDelete={(categoryId) => deleteCategory(project.id, categoryId)}
+            />
+          </div>
         </div>
 
         <div className="glass-card">
