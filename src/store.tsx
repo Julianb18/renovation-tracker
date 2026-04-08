@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react'
 import { doc, onSnapshot, setDoc } from 'firebase/firestore'
 import { db } from './firebase'
 import { useAuth } from './auth'
@@ -138,6 +138,61 @@ function sampleState(): State {
         name: '',
         totalBudget: 0,
         categories: [],
+      },
+    ],
+    activeProjectId: projectId,
+    hydrated: false,
+  }
+}
+
+function sampleDemoState(): State {
+  const projectId = uuid()
+  const kitchenId = uuid()
+  const bathroomId = uuid()
+  const exteriorId = uuid()
+
+  return {
+    projects: [
+      {
+        id: projectId,
+        name: 'Maple Street Remodel',
+        totalBudget: 45000,
+        categories: [
+          {
+            id: kitchenId,
+            name: 'Kitchen',
+            iconKey: 'kitchen',
+            icon: iconLibrary.kitchen.icon,
+            gradient: iconLibrary.kitchen.gradient,
+            items: [
+              { id: uuid(), title: 'Cabinet install', amount: 6200, status: 'Paid' },
+              { id: uuid(), title: 'Quartz countertops', amount: 4800, status: 'Scheduled' },
+              { id: uuid(), title: 'Appliance package', amount: 3900, status: 'Scheduled' },
+            ],
+          },
+          {
+            id: bathroomId,
+            name: 'Bathroom',
+            iconKey: 'bathroom',
+            icon: iconLibrary.bathroom.icon,
+            gradient: iconLibrary.bathroom.gradient,
+            items: [
+              { id: uuid(), title: 'Tile flooring', amount: 1800, status: 'Paid' },
+              { id: uuid(), title: 'Vanity + sink', amount: 1300, status: 'Scheduled' },
+            ],
+          },
+          {
+            id: exteriorId,
+            name: 'Exterior',
+            iconKey: 'exterior',
+            icon: iconLibrary.exterior.icon,
+            gradient: iconLibrary.exterior.gradient,
+            items: [
+              { id: uuid(), title: 'Paint and siding touch-up', amount: 2600, status: 'Scheduled' },
+              { id: uuid(), title: 'Front door replacement', amount: 950, status: 'Paid' },
+            ],
+          },
+        ],
       },
     ],
     activeProjectId: projectId,
@@ -289,10 +344,12 @@ const RenovationContext = createContext<Ctx | null>(null)
 export function RenovationProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, sampleState())
   const { user } = useAuth()
+  const hydratedForUidRef = useRef<string | null>(null)
 
   // Reset local state when user changes to avoid leaking previous user's data
   useEffect(() => {
     if (user) {
+      hydratedForUidRef.current = null
       dispatch({ type: 'reset', state: sampleState() })
     }
   }, [user?.uid])
@@ -304,10 +361,13 @@ export function RenovationProvider({ children }: { children: React.ReactNode }) 
     const unsub = onSnapshot(ref, (snap) => {
       const data = snap.data() as PersistedState | undefined
       if (data) {
+        hydratedForUidRef.current = user.uid
         dispatch({ type: 'hydrate', state: data })
       } else {
-        const seed = sanitizeState(sampleState())
+        const seedState = user.isAnonymous ? sampleDemoState() : sampleState()
+        const seed = sanitizeState(seedState)
         void setDoc(ref, seed)
+        hydratedForUidRef.current = user.uid
         dispatch({ type: 'hydrate', state: seed })
       }
     })
@@ -317,7 +377,7 @@ export function RenovationProvider({ children }: { children: React.ReactNode }) 
 
   // Persist to Firestore when signed in and hydrated
   useEffect(() => {
-    if (!user || !state.hydrated) return
+    if (!user || !state.hydrated || hydratedForUidRef.current !== user.uid) return
     const persistable = sanitizeState(state)
     const ref = doc(db, 'users', user.uid, 'data', 'app')
     void setDoc(ref, persistable)

@@ -17,10 +17,10 @@ export function SummaryCard({ label, value, accent }: { label: string; value: nu
 export function BudgetSummaryCard({ project }: { project: Project }) {
   const { updateBudget } = useRenovation()
   const [editing, setEditing] = useState(false)
-  const [value, setValue] = useState(project.totalBudget)
+  const [value, setValue] = useState<string>(project.totalBudget === 0 ? '' : String(project.totalBudget))
 
   useEffect(() => {
-    setValue(project.totalBudget)
+    setValue(project.totalBudget === 0 ? '' : String(project.totalBudget))
   }, [project.totalBudget])
 
   return (
@@ -34,12 +34,13 @@ export function BudgetSummaryCard({ project }: { project: Project }) {
                 type="number"
                 className="w-28 rounded-lg border border-white/10 bg-slate-900/70 px-3 py-2 text-sm text-white"
                 value={value}
-                onChange={(e) => setValue(Number(e.target.value))}
+                onChange={(e) => setValue(e.target.value)}
                 onFocus={(e) => e.target.select()}
               />
               <button
                 onClick={() => {
-                  updateBudget(project.id, value || 0)
+                  const parsed = Number(value)
+                  updateBudget(project.id, Number.isFinite(parsed) ? parsed : 0)
                   setEditing(false)
                 }}
                 className="rounded-lg bg-indigo-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-400"
@@ -48,7 +49,7 @@ export function BudgetSummaryCard({ project }: { project: Project }) {
               </button>
               <button
                 onClick={() => {
-                  setValue(project.totalBudget)
+                  setValue(project.totalBudget === 0 ? '' : String(project.totalBudget))
                   setEditing(false)
                 }}
                 className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200"

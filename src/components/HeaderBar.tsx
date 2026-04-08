@@ -19,7 +19,7 @@ export function HeaderBar({ project }: HeaderBarProps) {
         {user ? (
           <>
             <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-slate-200">
-              {user.displayName || user.email}
+              {user.isAnonymous ? 'Guest demo user' : user.displayName || user.email}
             </div>
             <button
               onClick={() => void signOutUser()}

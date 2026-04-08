@@ -14,7 +14,7 @@ const currency = (value: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
 
 function App() {
-  const { user, loading, signIn } = useAuth()
+  const { user, loading, signIn, signInAnon, signInWithEmail, signUpWithEmail } = useAuth()
 
   if (loading) {
     return (
@@ -25,7 +25,14 @@ function App() {
   }
 
   if (!user) {
-    return <Landing onSignIn={signIn} />
+    return (
+      <Landing
+        onSignIn={signIn}
+        onSignInAnon={signInAnon}
+        onEmailSignIn={signInWithEmail}
+        onEmailSignUp={signUpWithEmail}
+      />
+    )
   }
 
   return (
@@ -202,7 +209,23 @@ function getCategoryTotals(category: Category) {
 
 export default App
 
-function Landing({ onSignIn }: { onSignIn: () => Promise<void> }) {
+function Landing({
+  onSignIn,
+  onSignInAnon,
+  onEmailSignIn,
+  onEmailSignUp,
+}: {
+  onSignIn: () => Promise<void>
+  onSignInAnon: () => Promise<void>
+  onEmailSignIn: (email: string, password: string) => Promise<void>
+  onEmailSignUp: (email: string, password: string) => Promise<void>
+}) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [emailMode, setEmailMode] = useState<'signin' | 'signup'>('signin')
+  const [emailLoading, setEmailLoading] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_20%,rgba(79,70,229,0.18),transparent_25%),radial-gradient(circle_at_80%_0,rgba(14,165,233,0.14),transparent_25%),radial-gradient(circle_at_50%_80%,rgba(14,165,233,0.12),transparent_30%)]" />
@@ -214,12 +237,76 @@ function Landing({ onSignIn }: { onSignIn: () => Promise<void> }) {
         <p className="mt-3 max-w-xl text-slate-300">
           Sign in to sync your budget, categories, and expenses securely in Firestore and access them across devices.
         </p>
-        <button
-          onClick={() => void onSignIn()}
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-indigo-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:bg-indigo-400"
-        >
-          Sign in with Google
-        </button>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <button
+            onClick={() => void onSignIn()}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:bg-indigo-400"
+          >
+            Sign in with Google
+          </button>
+          <button
+            onClick={() => void onSignInAnon()}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:-translate-y-0.5 hover:bg-white/10"
+          >
+            Continue as guest (demo)
+          </button>
+        </div>
+        <div className="mt-6 w-full max-w-md rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-left">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm font-semibold text-slate-100">Email & Password</p>
+            <button
+              onClick={() => setEmailMode((m) => (m === 'signin' ? 'signup' : 'signin'))}
+              className="text-xs font-semibold text-indigo-200 underline decoration-indigo-500/60"
+            >
+              {emailMode === 'signin' ? 'Create account' : 'Have an account? Sign in'}
+            </button>
+          </div>
+          <form
+            className="space-y-3"
+            onSubmit={(e) => {
+              e.preventDefault()
+              const trimmedEmail = email.trim()
+              if (!trimmedEmail || !password) {
+                setEmailError('Enter your email and password.')
+                return
+              }
+              setEmailLoading(true)
+              setEmailError(null)
+              const action = emailMode === 'signin' ? onEmailSignIn : onEmailSignUp
+              void action(trimmedEmail, password)
+                .catch((err: unknown) => {
+                  const message = err instanceof Error ? err.message : 'Email auth failed.'
+                  setEmailError(message)
+                })
+                .finally(() => setEmailLoading(false))
+            }}
+          >
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-white"
+              autoComplete="email"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-lg border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-white"
+              autoComplete={emailMode === 'signin' ? 'current-password' : 'new-password'}
+            />
+            <button
+              type="submit"
+              disabled={emailLoading}
+              className="w-full rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white disabled:opacity-60"
+            >
+              {emailLoading ? 'Please wait…' : emailMode === 'signin' ? 'Sign in with email' : 'Create account'}
+            </button>
+            {emailError && <p className="text-xs text-rose-300">{emailError}</p>}
+          </form>
+        </div>
       </div>
     </div>
   )
