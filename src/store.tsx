@@ -3,7 +3,7 @@ import { doc, onSnapshot, setDoc } from 'firebase/firestore'
 import { db } from './firebase'
 import { useAuth } from './auth'
 
-export type Status = 'Scheduled' | 'Approved' | 'Paid'
+export type Status = 'Scheduled' | 'Paid'
 
 export type Item = {
   id: string
@@ -79,6 +79,24 @@ type State = {
 
 type PersistedState = Omit<State, 'hydrated'>
 
+function stripUndefinedDeep<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((item) => stripUndefinedDeep(item)) as T
+  }
+
+  if (value && typeof value === 'object') {
+    const result: Record<string, unknown> = {}
+    for (const [key, nested] of Object.entries(value)) {
+      if (nested !== undefined) {
+        result[key] = stripUndefinedDeep(nested)
+      }
+    }
+    return result as T
+  }
+
+  return value
+}
+
 type Action =
   | { type: 'set-active-project'; projectId: string }
   | { type: 'add-project'; name: string; totalBudget: number }
@@ -129,7 +147,7 @@ function sampleState(): State {
 
 function sanitizeState(state: State): PersistedState {
   const { hydrated, ...rest } = state
-  return rest
+  return stripUndefinedDeep(rest)
 }
 
 function reducer(state: State, action: Action): State {

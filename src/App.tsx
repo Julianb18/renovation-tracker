@@ -76,10 +76,10 @@ function ProjectPage() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr,1fr]">
         <div className="glass-card">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div>
               <h2 className="text-xl font-semibold">Project Overview</h2>
-              <p className="text-sm text-slate-400">Categories, spend, and cashflow</p>
+              <p className="text-sm text-slate-400">Clickable category cards with spend and payment progress</p>
             </div>
             <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300">
               {project.categories.length} categories
@@ -111,8 +111,8 @@ function ProjectPage() {
             </span>
           </div>
 
-          <div className="mt-5 space-y-4">
-            <UpcomingList title="Upcoming" items={upcoming} emptyText="No scheduled/approved items" />
+          <div className="mt-5 max-h-[55vh] space-y-4 overflow-y-auto pr-2">
+            <UpcomingList title="Upcoming" items={upcoming} emptyText="No scheduled items" />
             <UpcomingList title="Paid" items={paid} emptyText="No paid items yet" />
           </div>
         </div>
@@ -161,7 +161,7 @@ function CategoryPage() {
         </div>
 
         <div className="mt-5 grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
-          <div className="space-y-3">
+          <div className="max-h-[50vh] space-y-3 overflow-y-auto pr-2">
             {category.items.length === 0 ? (
               <p className="text-sm text-slate-400">No items yet. Add your first purchase or task.</p>
             ) : (

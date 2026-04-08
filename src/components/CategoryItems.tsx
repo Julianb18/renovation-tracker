@@ -60,7 +60,6 @@ export function AddItemForm({
           className="mt-1 w-full rounded-lg border border-white/10 bg-slate-900/80 px-3 py-2 text-white"
         >
           <option>Scheduled</option>
-          <option>Approved</option>
           <option>Paid</option>
         </select>
       </label>
@@ -181,7 +180,6 @@ export function ItemCard({
           className="rounded-lg border border-white/10 bg-slate-900/60 px-3 py-2 text-sm text-white"
         >
           <option>Scheduled</option>
-          <option>Approved</option>
           <option>Paid</option>
         </select>
         <EditItemButton item={item} onSave={onEdit} />
